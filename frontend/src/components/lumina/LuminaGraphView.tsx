@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Network, Sparkles, BookOpen, UserCheck, X, ArrowRight, RefreshCw, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { API_BASE } from '../../config';
+import { API_BASE, fetchPapers } from '../../config';
 
 interface NodeItem {
   id: string;
@@ -18,10 +18,8 @@ export default function LuminaGraphView() {
   const [isBreathing, setIsBreathing] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/papers/`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
+    fetchPapers().then((data) => {
+      if (Array.isArray(data)) {
           const list: NodeItem[] = [];
           data.slice(0, 12).forEach((p: any) => {
             list.push({ id: p.id, name: p.title, group: 'paper', dept: 'Computer Science' });

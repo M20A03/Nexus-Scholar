@@ -1,0 +1,96 @@
+{
+  "info": {
+    "name": "Knowledge Graph Builder",
+    "description": "API collection for the University Research Knowledge Graph Builder",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Backend - Graph",
+      "item": [
+        {
+          "name": "Get Entity Neighborhood",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:4000/api/graph/1?depth=2",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "4000",
+              "path": ["api", "graph", "1"],
+              "query": [
+                { "key": "depth", "value": "2" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Semantic Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Machine Learning applied to healthcare data\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:4000/api/graph/similar",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "4000",
+              "path": ["api", "graph", "similar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Service",
+      "item": [
+        {
+          "name": "Generate Embeddings",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Deep learning models have significantly advanced natural language processing capabilities in recent years.\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/embed",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["embed"]
+            }
+          }
+        },
+        {
+          "name": "Extract Entities",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Geoffrey Hinton from the University of Toronto won the Turing Award for his work on artificial neural networks.\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/extract-entities",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["extract-entities"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

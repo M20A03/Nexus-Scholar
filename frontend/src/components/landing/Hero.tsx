@@ -65,7 +65,7 @@ export default function Hero({ isDark = true }: HeroProps) {
       opacity: 1,
       y: 0,
       rotateX: 0,
-      transition: { duration: 0.5, ease: [0.2, 0.65, 0.3, 0.9] },
+      transition: { duration: 0.5, ease: [0.2, 0.65, 0.3, 0.9] as const },
     },
   };
 

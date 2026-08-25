@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Network, Sparkles, Moon, Sun, ArrowRight, GitCompare, BookOpen, Database, Github, ExternalLink } from 'lucide-react';
+import { Network, Sparkles, Moon, Sun, ArrowRight, GitCompare, BookOpen, Database, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import CustomCursor from '../components/landing/CustomCursor';

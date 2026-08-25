@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
 import multer from 'multer';
 import axios from 'axios';
 import { 
@@ -10,13 +9,14 @@ import {
 } from '../mockOrkgData';
 
 const router = Router();
-let prisma: PrismaClient | null = null;
-try {
-  if (process.env.DATABASE_URL) {
+let prisma: any = null;
+if (process.env.DATABASE_URL) {
+  try {
+    const { PrismaClient } = require('@prisma/client');
     prisma = new PrismaClient();
+  } catch (e) {
+    prisma = null;
   }
-} catch (e) {
-  prisma = null;
 }
 const upload = multer({ storage: multer.memoryStorage() });
 

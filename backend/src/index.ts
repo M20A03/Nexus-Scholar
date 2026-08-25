@@ -4,17 +4,17 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import apiRouter from './routes/api';
-import { PrismaClient } from '@prisma/client';
 
 dotenv.config();
 
-let prismaInstance: PrismaClient | null = null;
-try {
-  if (process.env.DATABASE_URL) {
+let prismaInstance: any = null;
+if (process.env.DATABASE_URL) {
+  try {
+    const { PrismaClient } = require('@prisma/client');
     prismaInstance = new PrismaClient();
+  } catch (e) {
+    console.warn('Prisma initialization skipped:', e);
   }
-} catch (e) {
-  console.warn('Prisma initialization skipped:', e);
 }
 
 export const prisma = prismaInstance;

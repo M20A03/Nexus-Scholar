@@ -12,8 +12,15 @@ app.use(cors({
 
 app.use(express.json());
 
-// Support routes mounted at /api or at root /
-app.use('/api', apiRouter);
-app.use('/', apiRouter);
+app.use((req, res, next) => {
+  // Strip /api prefix if present so apiRouter handles clean paths
+  if (req.url.startsWith('/api')) {
+    req.url = req.url.replace(/^\/api/, '');
+  }
+  if (!req.url || req.url === '') {
+    req.url = '/';
+  }
+  apiRouter(req, res, next);
+});
 
 export default app;

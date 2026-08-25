@@ -6,9 +6,18 @@ import dotenv from 'dotenv';
 import apiRouter from './routes/api';
 import { PrismaClient } from '@prisma/client';
 
-export const prisma = new PrismaClient();
-
 dotenv.config();
+
+let prismaInstance: PrismaClient | null = null;
+try {
+  if (process.env.DATABASE_URL) {
+    prismaInstance = new PrismaClient();
+  }
+} catch (e) {
+  console.warn('Prisma initialization skipped:', e);
+}
+
+export const prisma = prismaInstance;
 
 const app = express();
 const server = http.createServer(app);

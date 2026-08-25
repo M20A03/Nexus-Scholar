@@ -10,7 +10,14 @@ import {
 } from '../mockOrkgData';
 
 const router = Router();
-const prisma = new PrismaClient();
+let prisma: PrismaClient | null = null;
+try {
+  if (process.env.DATABASE_URL) {
+    prisma = new PrismaClient();
+  }
+} catch (e) {
+  prisma = null;
+}
 const upload = multer({ storage: multer.memoryStorage() });
 
 // In-Memory state fallback when Prisma database is not connected or empty
@@ -21,11 +28,11 @@ let localComparisons = [...MOCK_COMPARISONS];
 // GET /api/stats
 router.get('/stats', async (req, res) => {
   try {
-    const papersCount = await prisma.paper.count().catch(() => localPapers.length);
-    const authorsCount = await prisma.author.count().catch(() => 24);
-    const problemsCount = await prisma.researchProblem.count().catch(() => localProblems.length);
-    const comparisonsCount = await prisma.comparison.count().catch(() => localComparisons.length);
-    const statementsCount = await prisma.statement.count().catch(() => localPapers.reduce((acc, p) => acc + p.statements.length, 0));
+    const papersCount = await prisma?.paper.count().catch(() => localPapers.length) ?? localPapers.length;
+    const authorsCount = await prisma?.author.count().catch(() => 24) ?? 24;
+    const problemsCount = await prisma?.researchProblem.count().catch(() => localProblems.length) ?? localProblems.length;
+    const comparisonsCount = await prisma?.comparison.count().catch(() => localComparisons.length) ?? localComparisons.length;
+    const statementsCount = await prisma?.statement.count().catch(() => localPapers.reduce((acc, p) => acc + p.statements.length, 0)) ?? localPapers.reduce((acc, p) => acc + p.statements.length, 0);
 
     res.json({
       papersCount,
@@ -50,11 +57,11 @@ router.get('/stats', async (req, res) => {
 // GET /api/comparisons
 router.get('/comparisons', async (req, res) => {
   try {
-    const comparisons = await prisma.comparison.findMany({
+    const comparisons = await prisma?.comparison.findMany({
       include: { researchProblem: true }
     }).catch(() => localComparisons);
 
-    res.json(comparisons.length > 0 ? comparisons : localComparisons);
+    res.json(comparisons && comparisons.length > 0 ? comparisons : localComparisons);
   } catch (error) {
     res.json(localComparisons);
   }
@@ -63,7 +70,7 @@ router.get('/comparisons', async (req, res) => {
 // GET /api/comparisons/:id
 router.get('/comparisons/:id', async (req, res) => {
   try {
-    const comp = await prisma.comparison.findUnique({
+    const comp = await prisma?.comparison.findUnique({
       where: { id: req.params.id },
       include: { researchProblem: true }
     }).catch(() => null);
@@ -84,11 +91,11 @@ router.get('/comparisons/:id', async (req, res) => {
 // GET /api/problems
 router.get('/problems', async (req, res) => {
   try {
-    const problems = await prisma.researchProblem.findMany({
+    const problems = await prisma?.researchProblem.findMany({
       include: { papers: true, comparisons: true }
     }).catch(() => localProblems);
 
-    res.json(problems.length > 0 ? problems : localProblems);
+    res.json(problems && problems.length > 0 ? problems : localProblems);
   } catch (error) {
     res.json(localProblems);
   }
@@ -97,7 +104,7 @@ router.get('/problems', async (req, res) => {
 // GET /api/problems/:id
 router.get('/problems/:id', async (req, res) => {
   try {
-    const problem = await prisma.researchProblem.findUnique({
+    const problem = await prisma?.researchProblem.findUnique({
       where: { id: req.params.id },
       include: { papers: { include: { authors: true } }, comparisons: true }
     }).catch(() => null);
@@ -122,7 +129,7 @@ router.get('/papers', async (req, res) => {
   const search = req.query.search as string;
 
   try {
-    const papers = await prisma.paper.findMany({
+    const papers = await prisma?.paper.findMany({
       skip: (page - 1) * limit,
       take: limit,
       where: search ? {
@@ -135,8 +142,8 @@ router.get('/papers', async (req, res) => {
       orderBy: { publishedAt: 'desc' },
     }).catch(() => []);
 
-    if (papers.length > 0) {
-      const total = await prisma.paper.count();
+    if (papers && papers.length > 0) {
+      const total = await prisma?.paper.count() ?? papers.length;
       return res.json({ data: papers, total, page, totalPages: Math.ceil(total / limit) });
     }
 
@@ -171,7 +178,7 @@ router.get('/papers/search', async (req, res) => {
   const q = (req.query.q as string || '').toLowerCase();
   try {
     if (q) {
-      const papers = await prisma.paper.findMany({
+      const papers = await prisma?.paper.findMany({
         where: {
           OR: [
             { title: { contains: q, mode: 'insensitive' } },
@@ -182,7 +189,7 @@ router.get('/papers/search', async (req, res) => {
         orderBy: { publishedAt: 'desc' },
       }).catch(() => []);
       
-      if (papers.length > 0) return res.json(papers);
+      if (papers && papers.length > 0) return res.json(papers);
     }
     
     // Fallback to local data
@@ -243,7 +250,7 @@ router.get('/papers/:id/graph', async (req, res) => {
 // GET /api/papers/:id
 router.get('/papers/:id', async (req, res) => {
   try {
-    const paper = await prisma.paper.findUnique({
+    const paper = await prisma?.paper.findUnique({
       where: { id: req.params.id },
       include: {
         authors: true,
@@ -271,7 +278,8 @@ router.get('/statements', async (req, res) => {
   const paperId = req.query.paperId as string;
   try {
     if (paperId) {
-      const statements = await prisma.statement.findMany({ where: { paperId } }).catch(() => null);
+      const statements = await prisma?.statement.findMany({ where: { paperId } }).catch(() => null);
+      if (statements && statements.length > 0) return res.json(statements);
       if (statements && statements.length > 0) return res.json(statements);
 
       const paper = localPapers.find(p => p.id === paperId);
@@ -347,7 +355,7 @@ router.post('/ingest/arxiv', async (req, res) => {
     localPapers.unshift(newPaper);
 
     // Save to database if available
-    prisma.paper.create({
+    prisma?.paper.create({
       data: {
         id: newPaper.id,
         title: newPaper.title,

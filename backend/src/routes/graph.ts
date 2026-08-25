@@ -7,10 +7,9 @@ const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 router.get('/:entityId', async (req, res) => {
   const { entityId } = req.params;
-  const depth = parseInt(req.query.depth as string) || 2;
   
   try {
-    // Simplified fetch for hackathon - fetch direct relationships
+    if (!prisma) return res.json([]);
     const relationships = await prisma.relationship.findMany({
       where: {
         OR: [
@@ -21,12 +20,13 @@ router.get('/:entityId', async (req, res) => {
     });
     res.json(relationships);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.json([]);
   }
 });
 
 router.post('/similar', async (req, res) => {
   try {
+    if (!prisma) return res.json([]);
     const { query } = req.body;
     
     // Embed query
@@ -43,7 +43,7 @@ router.post('/similar', async (req, res) => {
 
     res.json(similarDocs);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.json([]);
   }
 });
 

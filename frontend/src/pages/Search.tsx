@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { API_BASE } from '../config';
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
@@ -15,8 +16,8 @@ export default function SearchPage() {
     setLoading(true);
     try {
       const url = searchQuery 
-        ? `http://localhost:4000/api/papers?search=${encodeURIComponent(searchQuery)}`
-        : 'http://localhost:4000/api/papers';
+        ? `${API_BASE}/api/papers?search=${encodeURIComponent(searchQuery)}`
+        : `${API_BASE}/api/papers`;
       const res = await fetch(url);
       const data = await res.json();
       setPapers(data.data || []);

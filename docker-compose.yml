@@ -2,77 +2,49 @@ version: '3.8'
 
 services:
   db:
-    image: ankane/pgvector:latest
+    image: pgvector/pgvector:pg16
+    container_name: orkg_db
+    restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: knowledge_graph
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orkg_db
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d orkg_db"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-
-  ai-service:
-    build: 
-      context: ./ai-service
-    ports:
-      - "8000:8000"
-    environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
-      - REDIS_URL=redis://redis:6379
-      - DB_URL=postgresql://postgres:password@db:5432/knowledge_graph
-    volumes:
-      - ./ai-service:/app
-      # Optional: bind mount your local GCP credentials for dev
-      # - ~/.config/gcloud/application_default_credentials.json:/app/credentials.json:ro
-    depends_on:
-      - db
-      - redis
-
   backend:
     build:
       context: ./backend
-    ports:
-      - "4000:4000"
+      dockerfile: Dockerfile
+    container_name: orkg_backend
+    restart: always
     environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/knowledge_graph?schema=public
-      - REDIS_URL=redis://redis:6379
-      - AI_SERVICE_URL=http://ai-service:8000
-      - JWT_SECRET=supersecret123
-      - PORT=4000
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/orkg_db
+      - GROQ_API_KEY=${GROQ_API_KEY:-your_groq_api_key_here}
+      - SECRET_KEY=${SECRET_KEY:-orkg-super-secret-key-12345}
+    ports:
+      - "8001:8000"
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_started
-      ai-service:
-        condition: service_started
 
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile
+    container_name: orkg_frontend
+    restart: always
     ports:
-      - "3000:3000"
-    environment:
-      - VITE_API_URL=http://localhost:4000
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "5173:80"
     depends_on:
       - backend
 
 volumes:
-  pgdata:
+  postgres_data:

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Network, ArrowRight, Sparkles, Users } from 'lucide-react';
 // import MiniGraph from '../components/MiniGraph';
+import { API_BASE } from '../config';
 
 export default function Collaboration() {
   const [author1, setAuthor1] = useState('');
@@ -9,7 +10,7 @@ export default function Collaboration() {
   const [suggested, setSuggested] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/collaborations')
+    fetch(`${API_BASE}/api/collaborations`)
       .then(res => res.json())
       .then(data => setSuggested(data.suggested || []))
       .catch(console.error);

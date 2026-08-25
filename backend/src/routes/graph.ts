@@ -14,13 +14,9 @@ router.get('/:entityId', async (req, res) => {
     const relationships = await prisma.relationship.findMany({
       where: {
         OR: [
-          { source_entity_id: entityId },
-          { target_entity_id: entityId }
+          { sourceId: entityId },
+          { targetId: entityId }
         ]
-      },
-      include: {
-        source_entity: true,
-        target_entity: true
       }
     });
     res.json(relationships);

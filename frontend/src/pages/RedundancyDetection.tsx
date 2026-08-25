@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, ArrowUpRight, GitCompare } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { API_BASE } from '../config';
 
 export default function RedundancyDetection() {
   const [redundancies, setRedundancies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/redundancies')
+    fetch(`${API_BASE}/api/redundancies`)
       .then(res => res.json())
       .then(data => {
         setRedundancies(data.redundancies || []);

@@ -24,12 +24,10 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     const entities = entityRes.data.entities;
 
     // 3. Save to DB
-    const newDoc = await prisma.document.create({
+    const newDoc = await prisma.paper.create({
       data: {
-        title: req.file.originalname,
-        full_text: textContent,
-        file_type: req.file.mimetype,
-        authors: [],
+        title: req.file?.originalname || 'Unknown Title',
+        abstract: '',
       }
     });
 
@@ -46,11 +44,11 @@ router.post('/upload', upload.single('file'), async (req, res) => {
       // In a full implementation, we'd also embed the entity and create relationships
       await prisma.relationship.create({
         data: {
-          source_entity_id: dbEntity.id,
-          target_entity_id: dbEntity.id, // placeholder
-          relationship_type: 'mentioned_in',
+          sourceId: dbEntity.id,
+          targetId: "some-placeholder-id",
+          type: 'mentioned_in',
           confidence: ent.salience,
-          document_id: newDoc.id
+          paperId: newDoc.id
         }
       });
     }

@@ -4,3 +4,7 @@ dist/
 .DS_Store
 __pycache__/
 *.pyc
+venv/
+.venv/
+ai-service/venv/
+backend/venv/

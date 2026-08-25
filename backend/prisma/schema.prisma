@@ -15,45 +15,80 @@ model Author {
   orcid      String?  @unique
   department String?
   papers     Paper[]  @relation("PaperAuthors")
-  // vector for author embeddings (optional)
   embeddings Unsupported("vector(768)")? 
 }
 
-model Paper {
+model ResearchProblem {
   id          String   @id @default(uuid())
-  title       String
-  abstract    String?
-  doi         String?  @unique
-  year        Int?
-  pdfUrl      String?
-  publishedAt DateTime @default(now())
-  authors     Author[] @relation("PaperAuthors")
-  citationsFrom Citation[] @relation("CitationFrom")
-  citationsTo   Citation[] @relation("CitationTo")
-  embeddings  Unsupported("vector(768)")? // pgvector field
+  name        String
+  field       String   // e.g. "Computer Science / Natural Language Processing"
+  description String?
+  papers      Paper[]
+  comparisons Comparison[]
+}
+
+model Paper {
+  id                String            @id @default(uuid())
+  title             String
+  abstract          String?
+  doi               String?           @unique
+  year              Int?
+  venue             String?           // e.g. "NeurIPS 2017", "ACL 2019"
+  pdfUrl            String?
+  pdfPath           String?           // Local stored PDF filepath
+  openAccess        Boolean           @default(true)
+  publishedAt       DateTime          @default(now())
+  authors           Author[]          @relation("PaperAuthors")
+  citationsFrom     Citation[]        @relation("CitationFrom")
+  citationsTo       Citation[]        @relation("CitationTo")
+  researchProblemId String?
+  researchProblem   ResearchProblem?  @relation(fields: [researchProblemId], references: [id])
+  statements        Statement[]
+  embeddings        Unsupported("vector(768)")?
+}
+
+model Statement {
+  id        String   @id @default(uuid())
+  paperId   String
+  paper     Paper    @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  subject   String   // e.g. "Transformer Model"
+  predicate String   // e.g. "uses_method", "evaluated_on", "achieves_accuracy", "has_dataset"
+  object    String   // e.g. "Self-Attention Mechanism", "SQuAD v2.0", "92.4%"
+}
+
+model Comparison {
+  id                String           @id @default(uuid())
+  title             String
+  description       String?
+  researchProblemId String?
+  researchProblem   ResearchProblem? @relation(fields: [researchProblemId], references: [id])
+  paperIds          String[]         // List of paper IDs in this comparison matrix
+  properties        String[]         // List of property names (e.g. ["Method", "Dataset", "Metric", "Parameters", "Code"])
+  matrixData        Json             // JSON map of { paperId: { propertyName: value } }
+  createdAt         DateTime         @default(now())
 }
 
 model Citation {
   id          String @id @default(uuid())
-  sourceId    String // citing paper
-  targetId    String // cited paper
-  sourcePaper Paper @relation("CitationFrom", fields: [sourceId], references: [id])
-  targetPaper Paper @relation("CitationTo", fields: [targetId], references: [id])
+  sourceId    String
+  targetId    String
+  sourcePaper Paper  @relation("CitationFrom", fields: [sourceId], references: [id])
+  targetPaper Paper  @relation("CitationTo", fields: [targetId], references: [id])
   @@unique([sourceId, targetId])
 }
 
 model Entity {
-  id       String @id @default(uuid())
-  name     String
-  type     String // author, concept, method, dataset, department
+  id         String   @id @default(uuid())
+  name       String
+  type       String   // author, concept, method, dataset, department, problem
   embeddings Unsupported("vector(768)")?
 }
 
 model Relationship {
-  id          String @id @default(uuid())
-  sourceId    String // entity id
-  targetId    String
-  type        String // researches, uses_method, belongs_to, etc.
+  id         String   @id @default(uuid())
+  sourceId   String
+  targetId   String
+  type       String   // researches, uses_method, evaluated_on, etc.
   confidence Float?
-  paperId     String? // optional link to paper
+  paperId    String?
 }

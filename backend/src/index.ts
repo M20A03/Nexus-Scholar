@@ -4,6 +4,9 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import apiRouter from './routes/api';
+import { PrismaClient } from '@prisma/client';
+
+export const prisma = new PrismaClient();
 
 dotenv.config();
 

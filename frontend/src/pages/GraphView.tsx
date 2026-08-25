@@ -1,146 +1,285 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import ForceGraph2D from 'react-force-graph-2d';
-import { Network, Filter, Maximize2, ZoomIn, ZoomOut, Search as SearchIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Network, Search, Filter, RefreshCw, BookOpen, UserCheck, Sparkles, X, ExternalLink, Layers, ArrowRight } from 'lucide-react';
+import { API_BASE } from '../config';
+import { Link } from 'react-router-dom';
+
+interface GraphNode {
+  id: string;
+  name: string;
+  group: 'paper' | 'author' | 'concept' | 'problem';
+  department?: string;
+  x?: number;
+  y?: number;
+}
+
+interface GraphLink {
+  source: string;
+  target: string;
+  label: string;
+}
 
 export default function GraphView() {
-  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
+  const [nodes, setNodes] = useState<GraphNode[]>([]);
+  const [links, setLinks] = useState<GraphLink[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
-  const containerRef = useRef<HTMLDivElement>(null);
-  const fgRef = useRef<any>();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState<string>('all');
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/graph')
-      .then(res => res.json())
-      .then(data => {
-        setGraphData(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+    fetchGraphData();
   }, []);
 
-  useEffect(() => {
-    if (containerRef.current) {
-      setDimensions({
-        width: containerRef.current.clientWidth,
-        height: containerRef.current.clientHeight
-      });
-    }
-    
-    const handleResize = () => {
-      if (containerRef.current) {
-        setDimensions({
-          width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight
+  const fetchGraphData = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/papers/`);
+      const papers = await res.json();
+
+      const nList: GraphNode[] = [];
+      const lList: GraphLink[] = [];
+      const nodeSet = new Set<string>();
+
+      (Array.isArray(papers) ? papers : []).slice(0, 15).forEach((p: any) => {
+        // Paper node
+        if (!nodeSet.has(p.id)) {
+          nodeSet.add(p.id);
+          nList.push({ id: p.id, name: p.title, group: 'paper', department: 'Computer Science' });
+        }
+
+        // Author nodes
+        (p.authors || []).forEach((a: any) => {
+          const aId = `author-${a.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+          if (!nodeSet.has(aId)) {
+            nodeSet.add(aId);
+            nList.push({ id: aId, name: a.name, group: 'author', department: a.department || 'Research' });
+          }
+          lList.push({ source: aId, target: p.id, label: 'authored' });
         });
-      }
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
-  const handleZoomIn = () => fgRef.current?.zoom(fgRef.current.zoom() * 1.2, 400);
-  const handleZoomOut = () => fgRef.current?.zoom(fgRef.current.zoom() / 1.2, 400);
-  const handleFit = () => fgRef.current?.zoomToFit(400);
+        // Property statement nodes
+        (p.statements || []).slice(0, 3).forEach((st: any) => {
+          const cId = `concept-${st.object.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+          if (!nodeSet.has(cId)) {
+            nodeSet.add(cId);
+            nList.push({ id: cId, name: st.object, group: 'concept' });
+          }
+          lList.push({ source: p.id, target: cId, label: st.predicate });
+        });
+      });
 
-  const getNodeColor = (node: any) => {
-    switch (node.group) {
-      case 'author': return '#3b82f6'; // blue-500
-      case 'concept': return '#8b5cf6'; // purple-500
-      case 'method': return '#10b981'; // emerald-500
-      case 'dataset': return '#f59e0b'; // amber-500
-      case 'department': return '#64748b'; // slate-500
-      default: return '#94a3b8';
+      setNodes(nList);
+      setLinks(lList);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredNodes = nodes.filter((n) => {
+    const matchesSearch = n.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesGroup = selectedGroup === 'all' || n.group === selectedGroup;
+    return matchesSearch && matchesGroup;
+  });
+
+  const getNodeColor = (group: string) => {
+    switch (group) {
+      case 'paper':
+        return 'bg-blue-600 border-blue-300 text-white';
+      case 'author':
+        return 'bg-amber-500 border-amber-300 text-white';
+      case 'concept':
+        return 'bg-purple-600 border-purple-300 text-white';
+      case 'problem':
+        return 'bg-emerald-600 border-emerald-300 text-white';
+      default:
+        return 'bg-slate-600 border-slate-300 text-white';
     }
   };
 
   return (
-    <div className="h-[calc(100vh-120px)] flex flex-col animate-fade-in max-w-7xl mx-auto">
-      <div className="flex justify-between items-end mb-6 shrink-0">
+    <div className="space-y-6">
+      {/* Top Banner */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="academic-title text-3xl mb-2">Knowledge Graph</h1>
-          <p className="text-slate-500">
-            Interactive visualization of researchers, papers, and concepts across the university.
+          <div className="flex items-center gap-2 mb-1">
+            <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-200">
+              Interactive Topology
+            </span>
+            <span className="text-xs text-slate-500 font-mono">2D Knowledge Net</span>
+          </div>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            Research Knowledge Graph Network
+          </h1>
+          <p className="text-sm text-slate-600 mt-0.5">
+            Visualize relationships between open-access research papers, verified authors, and extracted property statements.
           </p>
         </div>
-        
-        <div className="flex gap-3">
-          <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <input 
-              type="text" 
-              placeholder="Find node..." 
-              className="input-light pl-9 py-2 text-sm w-48"
-            />
-          </div>
-          <button className="btn-secondary flex items-center gap-2 text-sm">
-            <Filter size={16} /> Filters
-          </button>
+
+        <button
+          onClick={fetchGraphData}
+          className="btn-secondary text-xs flex items-center gap-1.5 self-stretch md:self-auto justify-center"
+        >
+          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+          <span>Refresh Graph</span>
+        </button>
+      </div>
+
+      {/* Filter & Controls Bar */}
+      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search nodes in graph..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="input-light w-full pl-9 text-xs"
+          />
+        </div>
+
+        {/* Group Filter Chips */}
+        <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+          {['all', 'paper', 'author', 'concept'].map((grp) => (
+            <button
+              key={grp}
+              onClick={() => setSelectedGroup(grp)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${
+                selectedGroup === grp
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {grp === 'all' ? 'All Nodes' : grp}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="flex-1 academic-card flex flex-col md:flex-row overflow-hidden relative">
-        {loading ? (
-          <div className="flex-1 flex items-center justify-center text-slate-500 bg-slate-50">
-            Loading graph data...
+      {/* Main Interactive Canvas Area */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm min-h-[500px] relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute top-4 right-4 z-10 flex gap-2">
+            <span className="text-[11px] font-mono bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md border border-slate-200">
+              Nodes: {filteredNodes.length} • Edges: {links.length}
+            </span>
           </div>
-        ) : (
-          <div className="flex-1 relative bg-slate-50" ref={containerRef}>
-            <ForceGraph2D
-              ref={fgRef}
-              width={dimensions.width}
-              height={dimensions.height}
-              graphData={graphData}
-              nodeColor={getNodeColor}
-              nodeRelSize={6}
-              linkColor={() => '#cbd5e1'}
-              linkWidth={1}
-              backgroundColor="#f8fafc"
-              nodeLabel="name"
-              onNodeClick={(node: any) => {
-                // Handle node click (e.g., center on node)
-                fgRef.current?.centerAt(node.x, node.y, 1000);
-                fgRef.current?.zoom(4, 2000);
-              }}
-            />
-            
-            {/* Graph Controls */}
-            <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-              <button onClick={handleZoomIn} className="w-10 h-10 bg-white border border-slate-200 rounded-lg shadow-sm flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
-                <ZoomIn size={18} />
-              </button>
-              <button onClick={handleZoomOut} className="w-10 h-10 bg-white border border-slate-200 rounded-lg shadow-sm flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
-                <ZoomOut size={18} />
-              </button>
-              <button onClick={handleFit} className="w-10 h-10 bg-white border border-slate-200 rounded-lg shadow-sm flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
-                <Maximize2 size={18} />
-              </button>
+
+          {loading ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-24 text-slate-400">
+              <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mb-3" />
+              <p className="text-sm font-medium">Rendering Knowledge Network...</p>
             </div>
-            
-            {/* Legend */}
-            <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-sm border border-slate-200 p-4 rounded-xl shadow-sm">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Node Types</h4>
-              <div className="space-y-2">
-                {[
-                  { label: 'Author', color: 'bg-blue-500' },
-                  { label: 'Concept', color: 'bg-purple-500' },
-                  { label: 'Method', color: 'bg-emerald-500' },
-                  { label: 'Dataset', color: 'bg-amber-500' },
-                  { label: 'Department', color: 'bg-slate-500' },
-                ].map(item => (
-                  <div key={item.label} className="flex items-center gap-2">
-                    <span className={`w-3 h-3 rounded-full ${item.color}`} />
-                    <span className="text-xs text-slate-700 font-medium">{item.label}</span>
+          ) : (
+            <div className="flex-1 flex flex-wrap content-start gap-3 py-6">
+              {filteredNodes.map((n) => (
+                <button
+                  key={n.id}
+                  onClick={() => setSelectedNode(n)}
+                  className={`p-3 rounded-xl border text-xs text-left transition-all duration-150 transform active:scale-95 hover:scale-105 shadow-sm ${getNodeColor(
+                    n.group
+                  )} ${selectedNode?.id === n.id ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+                >
+                  <div className="font-bold line-clamp-1">{n.name}</div>
+                  <div className="text-[10px] opacity-80 capitalize mt-0.5 flex items-center justify-between gap-2">
+                    <span>{n.group}</span>
+                    {n.department && <span>• {n.department}</span>}
                   </div>
-                ))}
-              </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Graph Legend */}
+          <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center gap-6 text-xs text-slate-600">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-blue-600 inline-block" />
+              <span>Research Papers</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-amber-500 inline-block" />
+              <span>Authors</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-purple-600 inline-block" />
+              <span>Property Concepts</span>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Selected Node Details Drawer */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          {selectedNode ? (
+            <div className="space-y-4">
+              <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold border border-blue-200">
+                    {selectedNode.group}
+                  </span>
+                  <h3 className="text-base font-bold text-slate-900 mt-1 leading-snug">
+                    {selectedNode.name}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setSelectedNode(null)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {selectedNode.group === 'paper' && (
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Open access paper ingested into the knowledge graph dataset.
+                  </p>
+                  <Link
+                    to={`/papers/${selectedNode.id}`}
+                    className="btn-primary text-xs w-full flex items-center justify-center gap-1.5"
+                  >
+                    <span>View Full Paper & Statements</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              )}
+
+              {selectedNode.group === 'author' && (
+                <div className="space-y-3">
+                  <div className="text-xs text-slate-600">
+                    <span className="font-semibold text-slate-800">Affiliation:</span>{' '}
+                    {selectedNode.department || 'University AI Research Lab'}
+                  </div>
+                  <Link
+                    to={`/search?q=${encodeURIComponent(selectedNode.name)}`}
+                    className="btn-secondary text-xs w-full flex items-center justify-center gap-1"
+                  >
+                    <span>Search Author's Papers</span>
+                  </Link>
+                </div>
+              )}
+
+              {selectedNode.group === 'concept' && (
+                <div className="space-y-3">
+                  <div className="text-xs text-slate-600">
+                    Extracted key-value property statement concept connected to research benchmarks.
+                  </div>
+                  <Link
+                    to={`/search?q=${encodeURIComponent(selectedNode.name)}`}
+                    className="btn-secondary text-xs w-full flex items-center justify-center gap-1"
+                  >
+                    <span>Find Related Papers</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-16 text-slate-400 space-y-2">
+              <Network className="w-10 h-10 mx-auto text-slate-300" />
+              <p className="text-xs font-medium">Click any node in the graph to inspect details</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

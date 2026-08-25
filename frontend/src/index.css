@@ -2,72 +2,134 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: rgba(212, 163, 115, 0.25);
+  color: #1E3A5F;
+  text-shadow: 0 0 8px rgba(212, 163, 115, 0.3);
+}
+
 @layer base {
   body {
-    @apply bg-[#f8fafc] text-[#1e293b] font-sans antialiased;
+    @apply bg-[#F8F9FA] text-[#1E3A5F] font-sans antialiased selection:bg-amber-100 selection:text-amber-900;
   }
 }
 
 @layer components {
-  /* Academic Card Style */
-  .academic-card {
-    @apply bg-white rounded-xl border border-slate-200 shadow-sm transition-all duration-200 overflow-hidden;
-  }
-  
-  .academic-card:hover {
-    @apply shadow-md border-slate-300;
+  /* Academic Lumina Glass Card */
+  .lumina-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 10px 40px rgba(0, 0, 0, 0.04), 0 20px 80px rgba(0, 0, 0, 0.02);
+    @apply rounded-2xl transition-all duration-300;
   }
 
-  /* Academic Title */
+  .lumina-card:hover {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03), 0 15px 45px rgba(0, 0, 0, 0.06), 0 25px 90px rgba(30, 58, 95, 0.08);
+    border-color: rgba(212, 163, 115, 0.4);
+  }
+  
+  /* Academic Typography */
   .academic-title {
-    @apply font-serif text-slate-800 font-bold;
+    @apply font-sans font-extrabold text-[#1E3A5F] tracking-tight;
   }
 
-  /* Buttons */
-  .btn-primary {
-    @apply bg-blue-600 text-white font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm;
-  }
-  
-  .btn-secondary {
-    @apply bg-white text-slate-700 font-medium px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors;
+  .serif-title {
+    font-family: 'Merriweather', 'Playfair Display', Georgia, serif;
   }
 
-  /* Inputs */
-  .input-light {
-    @apply bg-white border border-slate-200 text-slate-800 rounded-lg px-4 py-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all;
+  /* Academic Lumina Buttons */
+  .btn-lumina-primary {
+    @apply inline-flex items-center justify-center px-5 py-2.5 bg-[#1E3A5F] hover:bg-[#152842] text-white font-semibold text-xs rounded-xl shadow-md shadow-[#1E3A5F]/20 transition-all duration-200 active:scale-[0.98];
   }
 
-  /* Badges */
-  .badge {
-    @apply px-2.5 py-1 rounded-full text-xs font-semibold;
+  .btn-lumina-secondary {
+    @apply inline-flex items-center justify-center px-5 py-2.5 bg-white/80 hover:bg-white text-[#1E3A5F] border border-slate-200/90 font-semibold text-xs rounded-xl shadow-xs transition-all duration-200 active:scale-[0.98];
   }
-  
-  .badge-concept { @apply bg-blue-50 text-blue-700 border border-blue-200; }
-  .badge-author { @apply bg-purple-50 text-purple-700 border border-purple-200; }
-  .badge-method { @apply bg-emerald-50 text-emerald-700 border border-emerald-200; }
-  .badge-dataset { @apply bg-amber-50 text-amber-700 border border-amber-200; }
-  .badge-department { @apply bg-slate-100 text-slate-700 border border-slate-200; }
 
-  /* Table */
-  .academic-table {
-    @apply w-full text-left border-collapse;
+  .btn-lumina-gold {
+    @apply inline-flex items-center justify-center px-5 py-2.5 bg-[#D4A373] hover:bg-[#c39262] text-white font-semibold text-xs rounded-xl shadow-md shadow-[#D4A373]/30 transition-all duration-200 active:scale-[0.98];
   }
-  
-  .academic-table th {
-    @apply px-4 py-3 bg-slate-50 border-y border-slate-200 text-sm font-semibold text-slate-600 uppercase tracking-wider;
+
+  /* Academic Badges */
+  .badge-lumina-blue {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#1E3A5F]/10 text-[#1E3A5F] border border-[#1E3A5F]/20;
   }
-  
-  .academic-table td {
-    @apply px-4 py-3 border-b border-slate-100 text-sm text-slate-700;
+
+  .badge-lumina-gold {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#D4A373]/15 text-[#b5834b] border border-[#D4A373]/30;
+  }
+
+  .badge-lumina-sage {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#A3B18A]/20 text-[#4d5b36] border border-[#A3B18A]/40;
+  }
+
+  .badge-lumina-crimson {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#BC4749]/15 text-[#a13335] border border-[#BC4749]/30;
+  }
+
+  /* Lumina Input */
+  .input-lumina {
+    @apply bg-white/90 border border-slate-200/90 rounded-2xl px-5 py-3 text-sm text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#D4A373]/50 focus:border-[#D4A373] transition-all placeholder:text-slate-400 shadow-xs;
   }
 }
 
-/* Animations */
+/* Custom Lumina Sage/Amber Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F8F9FA;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #D4A373, #A3B18A);
+  border-radius: 9999px;
+  border: 2px solid #F8F9FA;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #1E3A5F, #D4A373);
+}
+
+/* Keyframe Animations */
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes floatGently {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+.animate-spin-slow {
+  animation: spinSlow 18s linear infinite;
+}
+
+.animate-float {
+  animation: floatGently 4s ease-in-out infinite;
+}
+
 .animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.shadow-2xs {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.shadow-xs {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }

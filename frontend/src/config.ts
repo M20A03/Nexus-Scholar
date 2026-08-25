@@ -1,4 +1,1 @@
-// API Configuration
-// The backend Express server serves all API endpoints
-export const API_BASE = 'http://localhost:8001';
-export const API_URL = `${API_BASE}/api`;
+export const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8001';

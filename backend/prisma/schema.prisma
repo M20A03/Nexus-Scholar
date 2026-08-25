@@ -9,42 +9,51 @@ datasource db {
   extensions = [vector]
 }
 
-model Document {
-  id            String         @id @default(uuid()) @db.Uuid
-  title         String
-  authors       String[]
-  abstract      String?        @db.Text
-  full_text     String         @db.Text
-  file_type     String
-  embedding     Unsupported("vector(768)")?
-  relationships Relationship[]
+model Author {
+  id         String   @id @default(uuid())
+  name       String
+  orcid      String?  @unique
+  department String?
+  papers     Paper[]  @relation("PaperAuthors")
+  // vector for author embeddings (optional)
+  embeddings Unsupported("vector(768)")? 
+}
 
-  @@map("documents")
+model Paper {
+  id          String   @id @default(uuid())
+  title       String
+  abstract    String?
+  doi         String?  @unique
+  year        Int?
+  pdfUrl      String?
+  publishedAt DateTime @default(now())
+  authors     Author[] @relation("PaperAuthors")
+  citationsFrom Citation[] @relation("CitationFrom")
+  citationsTo   Citation[] @relation("CitationTo")
+  embeddings  Unsupported("vector(768)")? // pgvector field
+}
+
+model Citation {
+  id          String @id @default(uuid())
+  sourceId    String // citing paper
+  targetId    String // cited paper
+  sourcePaper Paper @relation("CitationFrom", fields: [sourceId], references: [id])
+  targetPaper Paper @relation("CitationTo", fields: [targetId], references: [id])
+  @@unique([sourceId, targetId])
 }
 
 model Entity {
-  id                    String         @id @default(uuid()) @db.Uuid
-  name                  String
-  type                  String         // 'author', 'concept', 'method', 'dataset'
-  embedding             Unsupported("vector(768)")?
-  source_relationships  Relationship[] @relation("SourceEntity")
-  target_relationships  Relationship[] @relation("TargetEntity")
-
-  @@map("entities")
+  id       String @id @default(uuid())
+  name     String
+  type     String // author, concept, method, dataset, department
+  embeddings Unsupported("vector(768)")?
 }
 
 model Relationship {
-  id                String    @id @default(uuid()) @db.Uuid
-  source_entity_id  String    @db.Uuid
-  target_entity_id  String    @db.Uuid
-  relationship_type String    // 'collaborates_with', 'uses_method', 'cites'
-  confidence        Float
-  evidence          String?   @db.Text
-  document_id       String    @db.Uuid
-
-  source_entity     Entity    @relation("SourceEntity", fields: [source_entity_id], references: [id])
-  target_entity     Entity    @relation("TargetEntity", fields: [target_entity_id], references: [id])
-  document          Document  @relation(fields: [document_id], references: [id])
-
-  @@map("relationships")
+  id          String @id @default(uuid())
+  sourceId    String // entity id
+  targetId    String
+  type        String // researches, uses_method, belongs_to, etc.
+  confidence Float?
+  paperId     String? // optional link to paper
 }

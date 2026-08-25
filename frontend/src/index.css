@@ -3,247 +3,71 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --bg-primary: #0a0e1a;
-    --bg-secondary: #111827;
-    --bg-card: rgba(17, 24, 39, 0.7);
-    --bg-glass: rgba(255, 255, 255, 0.04);
-    --border-glass: rgba(255, 255, 255, 0.08);
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --accent-blue: #3b82f6;
-    --accent-purple: #8b5cf6;
-    --accent-cyan: #06b6d4;
-    --accent-emerald: #10b981;
-    --accent-amber: #f59e0b;
-    --accent-rose: #f43f5e;
-    --gradient-primary: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    --gradient-accent: linear-gradient(135deg, #06b6d4, #3b82f6);
-    --gradient-warm: linear-gradient(135deg, #f59e0b, #f43f5e);
-    --gradient-emerald: linear-gradient(135deg, #10b981, #06b6d4);
-    --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.15);
-    --shadow-glow-purple: 0 0 20px rgba(139, 92, 246, 0.15);
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    @apply bg-[#f8fafc] text-[#1e293b] font-sans antialiased;
   }
 }
 
 @layer components {
-  .glass-card {
-    background: var(--bg-glass);
-    border: 1px solid var(--border-glass);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 16px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Academic Card Style */
+  .academic-card {
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm transition-all duration-200 overflow-hidden;
+  }
+  
+  .academic-card:hover {
+    @apply shadow-md border-slate-300;
   }
 
-  .glass-card:hover {
-    border-color: rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.06);
+  /* Academic Title */
+  .academic-title {
+    @apply font-serif text-slate-800 font-bold;
   }
 
-  .gradient-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .glow-blue {
-    box-shadow: var(--shadow-glow-blue);
-  }
-
-  .glow-purple {
-    box-shadow: var(--shadow-glow-purple);
-  }
-
+  /* Buttons */
   .btn-primary {
-    background: var(--gradient-primary);
-    color: white;
-    font-weight: 600;
-    padding: 0.625rem 1.5rem;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.875rem;
+    @apply bg-blue-600 text-white font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-slate-700 font-medium px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors;
   }
 
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+  /* Inputs */
+  .input-light {
+    @apply bg-white border border-slate-200 text-slate-800 rounded-lg px-4 py-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all;
   }
 
-  .btn-primary:active {
-    transform: translateY(0);
-  }
-
-  .sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.625rem 1rem;
-    border-radius: 10px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-  }
-
-  .sidebar-link:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--text-primary);
-  }
-
-  .sidebar-link.active {
-    background: rgba(59, 130, 246, 0.12);
-    color: #60a5fa;
-  }
-
-  .sidebar-link.active svg {
-    color: #3b82f6;
-  }
-
-  .input-dark {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    padding: 0.75rem 1rem;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-    outline: none;
-    width: 100%;
-  }
-
-  .input-dark::placeholder {
-    color: var(--text-muted);
-  }
-
-  .input-dark:focus {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
+  /* Badges */
   .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.2rem 0.625rem;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    @apply px-2.5 py-1 rounded-full text-xs font-semibold;
   }
+  
+  .badge-concept { @apply bg-blue-50 text-blue-700 border border-blue-200; }
+  .badge-author { @apply bg-purple-50 text-purple-700 border border-purple-200; }
+  .badge-method { @apply bg-emerald-50 text-emerald-700 border border-emerald-200; }
+  .badge-dataset { @apply bg-amber-50 text-amber-700 border border-amber-200; }
+  .badge-department { @apply bg-slate-100 text-slate-700 border border-slate-200; }
 
-  .badge-author { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
-  .badge-concept { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-  .badge-method { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-  .badge-dataset { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-  .badge-department { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
-  .badge-organization { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
-
-  .stat-card {
-    position: relative;
-    overflow: hidden;
+  /* Table */
+  .academic-table {
+    @apply w-full text-left border-collapse;
   }
-
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    border-radius: 16px 16px 0 0;
+  
+  .academic-table th {
+    @apply px-4 py-3 bg-slate-50 border-y border-slate-200 text-sm font-semibold text-slate-600 uppercase tracking-wider;
   }
-
-  .stat-card-blue::before { background: var(--gradient-accent); }
-  .stat-card-purple::before { background: var(--gradient-primary); }
-  .stat-card-emerald::before { background: var(--gradient-emerald); }
-  .stat-card-warm::before { background: var(--gradient-warm); }
-}
-
-@layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease forwards;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.5s ease forwards;
-  }
-
-  .animate-pulse-slow {
-    animation: pulseSlow 3s ease-in-out infinite;
-  }
-
-  .animate-count-up {
-    animation: countUp 0.8s ease-out forwards;
+  
+  .academic-table td {
+    @apply px-4 py-3 border-b border-slate-100 text-sm text-slate-700;
   }
 }
 
+/* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulseSlow {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
-}
-
-@keyframes countUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

@@ -3,9 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
-import ingestRouter from './routes/ingest';
-import graphRouter from './routes/graph';
+import apiRouter from './routes/api';
 
 dotenv.config();
 
@@ -17,14 +15,12 @@ const io = new Server(server, {
   },
 });
 
-export const prisma = new PrismaClient();
 app.set('io', io);
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/ingest', ingestRouter);
-app.use('/api/graph', graphRouter);
+app.use('/api', apiRouter);
 
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);

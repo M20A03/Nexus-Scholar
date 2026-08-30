@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 export default function LuminaCursor() {
+  const [isEnabled, setIsEnabled] = useState(false);
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
   const [isHovered, setIsHovered] = useState(false);
@@ -12,6 +13,12 @@ export default function LuminaCursor() {
   const smoothY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
+    // Only enable on devices with a mouse/fine pointer to prevent mobile touch glitches
+    if (typeof window === 'undefined' || !window.matchMedia('(pointer: fine)').matches) {
+      return;
+    }
+    setIsEnabled(true);
+
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
@@ -33,14 +40,16 @@ export default function LuminaCursor() {
       }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseover', handleMouseOver);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mouseover', handleMouseOver, { passive: true });
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseover', handleMouseOver);
     };
   }, [mouseX, mouseY]);
+
+  if (!isEnabled) return null;
 
   return (
     <>

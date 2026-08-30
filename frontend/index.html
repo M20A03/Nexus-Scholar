@@ -3,12 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔬</text></svg>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Mobile Viewport & iOS Safe Area Fit -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0" />
+    <meta name="theme-color" content="#1E3A5F" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0B111A" media="(prefers-color-scheme: dark)" />
     <meta name="description" content="Automated Knowledge Graph Builder — Discover hidden research collaborations, cross-disciplinary connections, and redundant studies across university departments." />
-    <title>ResearchGraph — University Knowledge Graph Builder</title>
+    <title>Nexus Scholar — University Knowledge Graph & Literature Intelligence</title>
+    
+    <!-- Google Fonts with display: swap for zero font FOIT -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet" />
+
+    <!-- Zero FOUC (Flash of Incorrect Theme) Inline Script -->
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('nexus_scholar_theme_mode');
+          var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = (stored === 'dark' || (stored !== 'light' && systemDark)) ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,0 +1,131 @@
+/* ==========================================================================
+   Nexus Scholar - Enterprise Design Tokens (Light & Dark Theme)
+   ========================================================================== */
+
+:root {
+  /* Spacing Scale (8px / 4px base grid) */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+
+  /* Safe Area Inset Tokens (iOS / Notch support) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  /* Touch Target Minimum (Apple HIG & WCAG 2.5.8) */
+  --touch-target-min: 44px;
+
+  /* Typography Scale */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Merriweather', Georgia, Cambria, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Fluid Font Sizes using clamp() */
+  --font-xs: clamp(0.7rem, 0.65rem + 0.25vw, 0.75rem);
+  --font-sm: clamp(0.8rem, 0.75rem + 0.3vw, 0.875rem);
+  --font-base: clamp(0.925rem, 0.875rem + 0.35vw, 1rem);
+  --font-lg: clamp(1.05rem, 0.975rem + 0.4vw, 1.125rem);
+  --font-xl: clamp(1.2rem, 1.1rem + 0.6vw, 1.25rem);
+  --font-2xl: clamp(1.35rem, 1.2rem + 1vw, 1.5rem);
+  --font-3xl: clamp(1.6rem, 1.4rem + 1.2vw, 1.875rem);
+  --font-4xl: clamp(2rem, 1.7rem + 1.8vw, 2.25rem);
+
+  /* Container Max Widths */
+  --container-prose-max: 68ch;
+  --container-laptop-max: 1280px;
+  --container-desktop-max: 1536px;
+  --sidebar-width-desktop: 280px;
+
+  /* Light Theme Palette (Academic Lumina Theme) */
+  --bg-app: #F8F9FA;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #FFFFFF;
+  --bg-surface-muted: #F1F3F5;
+  --bg-surface-glass: rgba(255, 255, 255, 0.85);
+
+  --text-primary: #1E3A5F;
+  --text-secondary: #4A5568;
+  --text-muted: #718096;
+  --text-inverse: #FFFFFF;
+
+  --border-subtle: #E2E8F0;
+  --border-medium: #CBD5E1;
+  --border-focus: #D4A373;
+
+  --accent-primary: #1E3A5F;
+  --accent-primary-hover: #152842;
+  --accent-secondary: #D4A373;
+  --accent-secondary-hover: #C39262;
+  --accent-subtle: rgba(212, 163, 115, 0.15);
+
+  --status-success: #2E7D32;
+  --status-success-bg: #E8F5E9;
+  --status-warning: #ED6C02;
+  --status-warning-bg: #FFF3E0;
+  --status-error: #D32F2F;
+  --status-error-bg: #FFEBEE;
+  --status-info: #0288D1;
+  --status-info-bg: #E1F5FE;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-glass: 0 8px 32px 0 rgba(30, 58, 95, 0.06);
+
+  --focus-ring: 0 0 0 3px rgba(30, 58, 95, 0.25);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+}
+
+/* Dark Theme Palette */
+[data-theme='dark'],
+.dark {
+  --bg-app: #0B111A;
+  --bg-surface: #131C2A;
+  --bg-surface-elevated: #1B273A;
+  --bg-surface-muted: #162233;
+  --bg-surface-glass: rgba(19, 28, 42, 0.88);
+
+  --text-primary: #F1F5F9;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-inverse: #0B111A;
+
+  --border-subtle: #1E293B;
+  --border-medium: #334155;
+  --border-focus: #E9C46A;
+
+  --accent-primary: #38BDF8;
+  --accent-primary-hover: #0EA5E9;
+  --accent-secondary: #E9C46A;
+  --accent-secondary-hover: #D4A373;
+  --accent-subtle: rgba(233, 196, 106, 0.15);
+
+  --status-success: #4ADE80;
+  --status-success-bg: rgba(74, 222, 128, 0.12);
+  --status-warning: #FBBF24;
+  --status-warning-bg: rgba(251, 191, 36, 0.12);
+  --status-error: #F87171;
+  --status-error-bg: rgba(248, 113, 113, 0.12);
+  --status-info: #38BDF8;
+  --status-info-bg: rgba(56, 189, 248, 0.12);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+
+  --focus-ring: 0 0 0 3px rgba(56, 189, 248, 0.35);
+}

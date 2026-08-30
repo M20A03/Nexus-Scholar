@@ -1,6 +1,8 @@
-node_modules/
-dist/
+**/node_modules/
+**/dist/
+**/.vite/
 .env
+.env.*
 .DS_Store
 __pycache__/
 *.pyc

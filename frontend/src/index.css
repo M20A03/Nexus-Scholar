@@ -1,135 +1,340 @@
+@import './styles/tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+/* iOS Safe-Area Body Padding */
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 ::selection {
-  background: rgba(212, 163, 115, 0.25);
-  color: #1E3A5F;
+  background: var(--accent-subtle);
+  color: var(--text-primary);
   text-shadow: 0 0 8px rgba(212, 163, 115, 0.3);
 }
 
-@layer base {
-  body {
-    @apply bg-[#F8F9FA] text-[#1E3A5F] font-sans antialiased selection:bg-amber-100 selection:text-amber-900;
+/* CRITICAL: Force 16px font-size on ALL inputs to permanently stop iOS Safari zoom */
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+  font-size: 16px !important;
+}
+
+@media (min-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 0.875rem !important; /* 14px on desktop where auto-zoom is not an issue */
   }
 }
 
+/* Touch Targets Minimum (44x44px) on Mobile */
+@media (pointer: coarse) {
+  button,
+  a,
+  input[type="button"],
+  input[type="submit"],
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Focus Visible Rings for Keyboard Accessibility (WCAG 2.4.7) */
+:focus-visible {
+  outline: 2px solid var(--accent-secondary) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px var(--accent-subtle) !important;
+}
+
+/* Horizontal Overflow Prevention */
+.no-horizontal-overflow {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.break-words-safe {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
 @layer components {
-  /* Academic Lumina Glass Card */
-  .lumina-card {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 10px 40px rgba(0, 0, 0, 0.04), 0 20px 80px rgba(0, 0, 0, 0.02);
-    @apply rounded-2xl transition-all duration-300;
+  /* Dynamic Responsive Containers */
+  .container-prose {
+    max-width: var(--container-prose-max);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
   }
 
-  .lumina-card:hover {
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03), 0 15px 45px rgba(0, 0, 0, 0.06), 0 25px 90px rgba(30, 58, 95, 0.08);
-    border-color: rgba(212, 163, 115, 0.4);
+  .container-app {
+    width: 100%;
+    max-width: var(--container-desktop-max);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
-  
+
+  @media (min-width: 640px) {
+    .container-app {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-app {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  /* Academic Lumina Glass Card */
+  .lumina-card {
+    background: var(--bg-surface-glass);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (hover: hover) {
+    .lumina-card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent-secondary);
+      transform: translateY(-2px);
+    }
+  }
+
   /* Academic Typography */
   .academic-title {
-    @apply font-sans font-extrabold text-[#1E3A5F] tracking-tight;
+    font-family: var(--font-sans);
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.025em;
   }
 
   .serif-title {
-    font-family: 'Merriweather', 'Playfair Display', Georgia, serif;
+    font-family: var(--font-serif);
   }
 
-  /* Academic Lumina Buttons */
+  /* Academic Lumina Buttons with Touch Safety */
   .btn-lumina-primary {
-    @apply inline-flex items-center justify-center px-5 py-2.5 bg-[#1E3A5F] hover:bg-[#152842] text-white font-semibold text-xs rounded-xl shadow-md shadow-[#1E3A5F]/20 transition-all duration-200 active:scale-[0.98];
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.25rem;
+    background-color: var(--accent-primary);
+    color: var(--text-inverse);
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (hover: hover) {
+    .btn-lumina-primary:hover:not(:disabled) {
+      background-color: var(--accent-primary-hover);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+  }
+
+  .btn-lumina-primary:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .btn-lumina-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   .btn-lumina-secondary {
-    @apply inline-flex items-center justify-center px-5 py-2.5 bg-white/80 hover:bg-white text-[#1E3A5F] border border-slate-200/90 font-semibold text-xs rounded-xl shadow-xs transition-all duration-200 active:scale-[0.98];
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.25rem;
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-medium);
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (hover: hover) {
+    .btn-lumina-secondary:hover:not(:disabled) {
+      background-color: var(--bg-surface-muted);
+      border-color: var(--text-muted);
+      transform: translateY(-1px);
+    }
+  }
+
+  .btn-lumina-secondary:active:not(:disabled) {
+    transform: scale(0.98);
   }
 
   .btn-lumina-gold {
-    @apply inline-flex items-center justify-center px-5 py-2.5 bg-[#D4A373] hover:bg-[#c39262] text-white font-semibold text-xs rounded-xl shadow-md shadow-[#D4A373]/30 transition-all duration-200 active:scale-[0.98];
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.25rem;
+    background-color: var(--accent-secondary);
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (hover: hover) {
+    .btn-lumina-gold:hover:not(:disabled) {
+      background-color: var(--accent-secondary-hover);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
   }
 
   /* Academic Badges */
   .badge-lumina-blue {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#1E3A5F]/10 text-[#1E3A5F] border border-[#1E3A5F]/20;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: var(--status-info-bg);
+    color: var(--status-info);
+    border: 1px solid currentColor;
   }
 
   .badge-lumina-gold {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#D4A373]/15 text-[#b5834b] border border-[#D4A373]/30;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: var(--accent-subtle);
+    color: var(--accent-secondary);
+    border: 1px solid currentColor;
   }
 
-  .badge-lumina-sage {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#A3B18A]/20 text-[#4d5b36] border border-[#A3B18A]/40;
-  }
-
-  .badge-lumina-crimson {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#BC4749]/15 text-[#a13335] border border-[#BC4749]/30;
-  }
-
-  /* Lumina Input */
+  /* Responsive Input */
   .input-lumina {
-    @apply bg-white/90 border border-slate-200/90 rounded-2xl px-5 py-3 text-sm text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#D4A373]/50 focus:border-[#D4A373] transition-all placeholder:text-slate-400 shadow-xs;
+    width: 100%;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-lg);
+    padding: 0.625rem 1rem;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+  }
+
+  .input-lumina:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-subtle);
+  }
+
+  .input-lumina::placeholder {
+    color: var(--text-muted);
   }
 }
 
-/* Custom Lumina Sage/Amber Scrollbar */
+/* Custom Adaptive Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F8F9FA;
+  background: var(--bg-app);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #D4A373, #A3B18A);
+  background: var(--border-medium);
   border-radius: 9999px;
-  border: 2px solid #F8F9FA;
+  border: 2px solid var(--bg-app);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #1E3A5F, #D4A373);
+  background: var(--accent-secondary);
 }
 
-/* Keyframe Animations */
-@keyframes spinSlow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* Responsive Grid Density Utility */
+.grid-responsive-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
-@keyframes floatGently {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+@media (min-width: 640px) {
+  .grid-responsive-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+@media (min-width: 1024px) {
+  .grid-responsive-cards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
 }
 
-.animate-spin-slow {
-  animation: spinSlow 18s linear infinite;
+@media (min-width: 1440px) {
+  .grid-responsive-cards {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
 }
 
-.animate-float {
-  animation: floatGently 4s ease-in-out infinite;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-.shadow-2xs {
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-}
-
-.shadow-xs {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+@media (min-width: 1920px) {
+  .grid-responsive-cards {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }

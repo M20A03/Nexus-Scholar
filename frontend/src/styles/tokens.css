@@ -61,11 +61,11 @@
   --border-medium: #CBD5E1;
   --border-focus: #D4A373;
 
-  --accent-primary: #1E3A5F;
-  --accent-primary-hover: #152842;
-  --accent-secondary: #D4A373;
-  --accent-secondary-hover: #C39262;
-  --accent-subtle: rgba(212, 163, 115, 0.15);
+  --accent-primary: #1E3A8A;
+  --accent-primary-hover: #172554;
+  --accent-secondary: #7C3AED;
+  --accent-secondary-hover: #6D28D9;
+  --accent-subtle: rgba(124, 58, 237, 0.15);
 
   --status-success: #2E7D32;
   --status-success-bg: #E8F5E9;
